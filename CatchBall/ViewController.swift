@@ -9,9 +9,9 @@ import UIKit
 
 class ViewController: UIViewController {
     
-    var score = 0;
-    var highScore = 0;
-    var time = 30;
+    var score:Int?;
+    var highScore:Int?;
+    var time:Int?;
     var timer = Timer()
     var isGameOver = false;
 
@@ -23,9 +23,19 @@ class ViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        startGame()
         
-        timeLabel.text = "Time: \(time)"
-        scoreLabel.text = "\(score)"
+    }
+    
+    func startGame() {
+        score = 0
+        time = 30
+        isGameOver = false
+        timeLabel.text = "Time: \(time!)"
+        scoreLabel.text = "\(score!)"
+        
+        highScore = UserDefaults.standard.object(forKey: "highScore") as? Int ?? 0
+        highScoreLabel.text = "High Score: \(highScore!)"
         
         timer = Timer.scheduledTimer(timeInterval: 1, target: self, selector: #selector(decrementTime), userInfo: nil, repeats: true)
         
@@ -37,19 +47,35 @@ class ViewController: UIViewController {
         ball.addGestureRecognizer(gestureRecognizer)
         
         changeBallLocation();
-        
     }
     
+    
+    
     @objc func decrementTime(){
-        if(time <= 0){
+        if(time! <= 0){
             time = 0;
             timeLabel.text = "Game Over!"
+            
             isGameOver = true
-            return timer.invalidate()
+            
+            UserDefaults.standard.set(highScore, forKey: "highScore")
+            
+            let alertController = UIAlertController(title: "Game Over!", message: "Game is over. Do you want play again?", preferredStyle: UIAlertController.Style.alert)
+            
+            let playAgainButton = UIAlertAction(title: "Play Again", style: UIAlertAction.Style.default) { _ in
+                self.startGame()
+            }
+          
+            
+            alertController.addAction(playAgainButton)
+            
+            timer.invalidate()
+            
+            return present(alertController, animated: true)
         }
         
-        timeLabel.text = "Time: \(time)"
-        time -= 1
+        timeLabel.text = "Time: \(time!)"
+        time! -= 1
      
         
     }
@@ -59,12 +85,12 @@ class ViewController: UIViewController {
             return
         }
         
-        score += 1
-        scoreLabel.text = "\(score)"
+        score! += 1
+        scoreLabel.text = "\(score!)"
         
-        if(score > highScore){
+        if(score! > highScore!){
             highScore = score;
-            highScoreLabel.text = "High score: \(highScore)"
+            highScoreLabel.text = "High Score: \(highScore!)"
         }
         
         changeBallLocation();
@@ -83,7 +109,7 @@ class ViewController: UIViewController {
         
     }
     
-    
+
 
 
 }
